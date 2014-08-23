@@ -17,7 +17,5 @@ filter.addDoc("secret sports event", None)
 filter.addDoc("sports is today", None)
 filter.addDoc("sports costs money", None)
 
-filter.db.info()
-
 print "Probability of spam, given message 'today is secret' = %s" % filter.predict("spam", "today is secret")
 

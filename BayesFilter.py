@@ -33,7 +33,7 @@ class BayesFilter:
         """
         Probability of the doc belonging to class 'label'.
         """
-        if label not in self.db.labelToDocs.keys():
+        if label not in self.db.labelToDocsCount.keys():
             print "unknown label %s" % label
             exit()
 
@@ -59,10 +59,12 @@ class BayesFilter:
         """
         Probability of a label occurring in a random document.
         """
-        if label not in self.db.labelToDocs.keys():
+        if label not in self.db.labelToDocsCount.keys():
             print "Error: label %s not in DB" % label
             exit()
-        return float(len(self.db.labelToDocs[label]) + 1) / (len(self.db.allDocs) + 2)
+
+        # Use Laplacian smoothing
+        return float(self.db.labelToDocsCount[label] + 1) / (self.db.allDocsCount + 2)
 
     def __probNotLabel(self, label):
         """
@@ -81,10 +83,10 @@ class BayesFilter:
             freqInLabel = self.db.labelToWordToFreq[label][word]
 
         ## Get total count of words in label
-        totalWordCountInLabel = self.db.labelToTotalWordCount[label]
+        totalWordCountInLabel = sum(self.db.labelToWordToFreq[label].values())
 
         ## Find probability of word coming up in class 'label', using Laplace Smoothing
-        return float(freqInLabel + self.k) / (totalWordCountInLabel + (self.k * self.db.uniqueWordCount))
+        return float(freqInLabel + self.k) / (totalWordCountInLabel + (self.k * len(self.db.wordToTotalFreq)))
 
     def __probWordGivenNotLabel(self, word, label):
         """
@@ -105,10 +107,10 @@ class BayesFilter:
         occurrencesNotInClass = totalOccurrences - freqInClass
 
         ## Get total count of words not in clazz
-        totalWordCountNotInClazz = self.db.totalWordCount - self.db.labelToTotalWordCount[label]
+        totalWordCountNotInClazz = self.db.totalWordCount - sum(self.db.labelToWordToFreq[label].values())
 
         ## Find probability of word coming up in clazz, using Laplace Smoothing with k = 1
-        return float(occurrencesNotInClass + 1) / (totalWordCountNotInClazz + self.db.uniqueWordCount)
+        return float(occurrencesNotInClass + 1) / (totalWordCountNotInClazz + len(self.db.wordToTotalFreq))
 
     def __probDocGivenLabel(self, doc, label):
         """

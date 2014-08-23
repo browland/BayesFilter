@@ -19,16 +19,6 @@ class BayesFilter:
     ## *** Public Methods ***
     ## **********************
 
-    def addDoc(self, doc, label):
-        """
-        Adds a doc (just a string) to this Bayes filter, in order to
-        provide training data.  Label can be specified as the class this
-        document belongs to, or can be None if no class is required.
-        For example, you would not specify a class in cases where you want
-        training data for what does NOT fit any class.
-        """
-        self.db.addDoc(doc, label)
-
     def predict(self, label, doc):
         """
         Probability of the doc belonging to class 'label'.
@@ -46,8 +36,8 @@ class BayesFilter:
     ## *** Private Methods ***
     ## ***********************
 
-    def __init__(self):
-        self.db = BayesDB()
+    def __init__(self, db):
+        self.db = db
 
     def __freqInDict(self, word, dict):
         if word not in dict:
